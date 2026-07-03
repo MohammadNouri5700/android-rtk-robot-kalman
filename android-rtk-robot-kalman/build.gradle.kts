@@ -3,6 +3,9 @@ plugins {
     `maven-publish`
 }
 
+group = "com.github.MohammadNouri5700"
+version = "1.0.0"
+
 android {
     namespace = "com.mohammadnouri5700.rtkrobotkalman"
     compileSdk = 37
@@ -57,9 +60,9 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-                groupId = "com.github.MohammadNouri5700"
+                groupId = project.group.toString()
                 artifactId = "android-rtk-robot-kalman"
-                version = "1.0.0"
+                version = project.version.toString()
 
                 pom {
                     name.set("Android RTK Robot Kalman")
