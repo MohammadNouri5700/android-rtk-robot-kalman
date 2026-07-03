@@ -1,0 +1,4 @@
+jdk:
+  - openjdk17
+install:
+  - ./gradlew :android-rtk-robot-kalman:assembleRelease

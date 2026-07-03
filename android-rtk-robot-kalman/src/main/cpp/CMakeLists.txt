@@ -15,7 +15,7 @@ elseif (ANDROID_ABI STREQUAL "armeabi-v7a")
 endif()
 
 # Locate Eigen3 Math Library
-get_filename_component(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../third_party/eigen3" ABSOLUTE)
+get_filename_component(EIGEN3_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../third_party/eigen3" ABSOLUTE)
 
 if(NOT EXISTS "${EIGEN3_INCLUDE_DIR}/Eigen/Core")
     message(FATAL_ERROR "Eigen3 not found at ${EIGEN3_INCLUDE_DIR}. Please check the path.")
@@ -44,18 +44,18 @@ add_definitions(-DENAGLO -DENAGAL -DENAQZS -DNFREQ=3)
 
 # 1. Static Library for GNSS Core
 add_library(rtklib_core STATIC
-        ../../../../../core/src/rtklib_interface.cpp
+        ../../../../core/src/rtklib_interface.cpp
 )
-target_include_directories(rtklib_core PUBLIC ../../../../../core/include)
+target_include_directories(rtklib_core PUBLIC ../../../../core/include)
 
 # 2. Shared Library for Android Native Bridge
 add_library(rtk_robot_kalman_engine SHARED
-        ../../../../../core/src/sensor_fusion.cpp
+        ../../../../core/src/sensor_fusion.cpp
         jni_bridge.cpp
 )
 
 # 3. Specify Header Directories for the Engine
-target_include_directories(rtk_robot_kalman_engine PUBLIC ../../../../../core/include)
+target_include_directories(rtk_robot_kalman_engine PUBLIC ../../../../core/include)
 
 # 4. Link Libraries
 target_link_libraries(rtk_robot_kalman_engine
@@ -66,10 +66,10 @@ target_link_libraries(rtk_robot_kalman_engine
 
 # 5. Unit Tests (C++)
 add_executable(sensor_fusion_test
-        ../../../../../core/src/sensor_fusion.cpp
-        ../../../../../core/test/sensor_fusion_test.cpp
+        ../../../../core/src/sensor_fusion.cpp
+        ../../../../core/test/sensor_fusion_test.cpp
 )
-target_include_directories(sensor_fusion_test PUBLIC ../../../../../core/include)
+target_include_directories(sensor_fusion_test PUBLIC ../../../../core/include)
 target_link_libraries(sensor_fusion_test
         GTest::gtest_main
         log
