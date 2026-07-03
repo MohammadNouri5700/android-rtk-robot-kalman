@@ -1,0 +1,7 @@
+# Protect JNI Bridge classes from being renamed or stripped
+-keep class com.mohammadnouri5700.rtkrobotkalman.** { *; }
+
+# Prevent methods that are called from C++ from being stripped
+-keepclasseswithmembernames class com.mohammadnouri5700.rtkrobotkalman.** {
+    native <methods>;
+}

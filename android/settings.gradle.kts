@@ -34,5 +34,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "rtklib-localization"
-include(":app")
+rootProject.name = "android-rtk-robot-kalman"
+include(":android-rtk-robot-kalman")
+project(":android-rtk-robot-kalman").projectDir = file("android-rtk-robot-kalman")
