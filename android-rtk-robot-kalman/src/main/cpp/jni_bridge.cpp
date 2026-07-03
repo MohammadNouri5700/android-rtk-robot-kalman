@@ -41,6 +41,14 @@ Java_com_mohammadnouri5700_rtkrobotkalman_RtkRobotEngine_nativeGetState(JNIEnv* 
 
     Eigen::VectorXd state = engine->getState();
 
+    // Convert ENU back to WGS84 for the UI
+    Eigen::Vector3d pos_enu = state.segment<3>(0);
+    Eigen::Vector3d pos_wgs84 = engine->enuToWgs84(pos_enu);
+
+    state(0) = pos_wgs84.x(); // Latitude
+    state(1) = pos_wgs84.y(); // Longitude
+    state(2) = pos_wgs84.z(); // Altitude
+
     jdoubleArray result = env->NewDoubleArray(15);
     if (result == nullptr) return nullptr;
 

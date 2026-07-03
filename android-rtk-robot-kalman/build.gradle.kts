@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.github.MohammadNouri5700"
-version = "1.0.0"
+version = "1.0.3"
 
 android {
     namespace = "com.mohammadnouri5700.rtkrobotkalman"
@@ -45,6 +45,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.fragment)
     implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.material)

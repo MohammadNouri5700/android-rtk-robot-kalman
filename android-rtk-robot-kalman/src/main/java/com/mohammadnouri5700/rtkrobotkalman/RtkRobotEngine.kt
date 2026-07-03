@@ -50,7 +50,7 @@ class RtkRobotEngine : AutoCloseable {
             if (array.size == 15) {
                 // 3. Map it to a clean Kotlin Data Class for the developer
                 _engineState.value = StateVector(
-                    x = array[0], y = array[1], z = array[2],
+                    latitude = array[0], longitude = array[1], altitude = array[2],
                     roll = array[3], pitch = array[4], yaw = array[5],
                     vx = array[6], vy = array[7], vz = array[8]
                 )
@@ -75,7 +75,7 @@ class RtkRobotEngine : AutoCloseable {
         nativeGetState(nativeEnginePtr)?.let { array ->
             if (array.size == 15) {
                 _engineState.value = StateVector(
-                    x = array[0], y = array[1], z = array[2],
+                    latitude = array[0], longitude = array[1], altitude = array[2],
                     roll = array[3], pitch = array[4], yaw = array[5],
                     vx = array[6], vy = array[7], vz = array[8]
                 )
@@ -106,7 +106,7 @@ class RtkRobotEngine : AutoCloseable {
  */
 @Keep
 data class StateVector(
-    val x: Double, val y: Double, val z: Double,
+    val latitude: Double, val longitude: Double, val altitude: Double,
     val roll: Double, val pitch: Double, val yaw: Double,
     val vx: Double, val vy: Double, val vz: Double
 )

@@ -21,12 +21,12 @@ plugins {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        google()
-        mavenCentral()
-
-        // Aliyun Mirrors (Backup)
+        // Aliyun Mirrors (Backup) - Moved to top for reliability
         maven { url = uri("https://maven.aliyun.com/repository/google") }
         maven { url = uri("https://maven.aliyun.com/repository/public") }
+
+        google()
+        mavenCentral()
 
         maven { url = uri("https://maven.neshan.org/artifactory/public-maven") }
         maven { url = uri("https://dl.cloudsmith.io/public/carto/mobile-sdk/maven/") }

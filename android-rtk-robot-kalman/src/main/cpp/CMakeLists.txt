@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.22.1)
 
 # Declares the project name.
-project(rtklib_localization VERSION 1.0.0 LANGUAGES C CXX)
+project(rtklib_localization VERSION 1.0.3 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -45,8 +45,12 @@ add_definitions(-DENAGLO -DENAGAL -DENAQZS -DNFREQ=3)
 # 1. Static Library for GNSS Core
 add_library(rtklib_core STATIC
         ../../../../core/src/rtklib_interface.cpp
+        ../../../../third_party/RTKLIB/src/rtkcmn.c
 )
-target_include_directories(rtklib_core PUBLIC ../../../../core/include)
+target_include_directories(rtklib_core PUBLIC
+        ../../../../core/include
+        ../../../../third_party/RTKLIB/src
+)
 
 # 2. Shared Library for Android Native Bridge
 add_library(rtk_robot_kalman_engine SHARED
@@ -55,7 +59,10 @@ add_library(rtk_robot_kalman_engine SHARED
 )
 
 # 3. Specify Header Directories for the Engine
-target_include_directories(rtk_robot_kalman_engine PUBLIC ../../../../core/include)
+target_include_directories(rtk_robot_kalman_engine PUBLIC
+        ../../../../core/include
+        ../../../../third_party/RTKLIB/src
+)
 
 # 4. Link Libraries
 target_link_libraries(rtk_robot_kalman_engine
@@ -69,8 +76,12 @@ add_executable(sensor_fusion_test
         ../../../../core/src/sensor_fusion.cpp
         ../../../../core/test/sensor_fusion_test.cpp
 )
-target_include_directories(sensor_fusion_test PUBLIC ../../../../core/include)
+target_include_directories(sensor_fusion_test PUBLIC
+        ../../../../core/include
+        ../../../../third_party/RTKLIB/src
+)
 target_link_libraries(sensor_fusion_test
+        rtklib_core
         GTest::gtest_main
         log
 )

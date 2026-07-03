@@ -40,21 +40,60 @@ TEST_F(SensorFusionTest, PredictionConstantVelocity) {
     EXPECT_NEAR(state(6), 1.0, 1e-6);
 }
 
-TEST_F(SensorFusionTest, GNSSUpdate) {
-    // Current position (0,0,0)
-    // Update with GNSS at (10, 20, 30)
+TEST_F(SensorFusionTest, GNSSUpdateWGS84) {
+    // Tehran: 35.6892, 51.3890
     MeasurementGNSS gnss;
-    gnss.timestamp = 1.0;
-    gnss.pos_enu = Eigen::Vector3d(10.0, 20.0, 30.0);
+    gnss.timestamp = 0.0;
+    gnss.pos_enu = Eigen::Vector3d(35.6892, 51.3890, 1200.0);
     gnss.covariance = Eigen::Matrix3d::Identity() * 0.01;
 
+    // First update sets origin
     ekf.updateGNSS(gnss);
 
     Eigen::VectorXd state = ekf.getState();
-    // Should be close to the GNSS measurement
-    EXPECT_NEAR(state(0), 10.0, 0.5);
-    EXPECT_NEAR(state(1), 20.0, 0.5);
-    EXPECT_NEAR(state(2), 30.0, 0.5);
+    // Position in ENU should be (0, 0, 0)
+    EXPECT_NEAR(state(0), 0.0, 1e-4);
+    EXPECT_NEAR(state(1), 0.0, 1e-4);
+    EXPECT_NEAR(state(2), 0.0, 1e-4);
+
+    // Update with a point 100 meters East
+    // Using a simplified conversion for the test expectation
+    // 1 deg lon at 35.6 lat is approx 90km. 100m is ~0.0011 deg.
+    gnss.timestamp = 1.0;
+    gnss.pos_enu = Eigen::Vector3d(35.6892, 51.39011, 1200.0);
+    ekf.updateGNSS(gnss);
+
+    state = ekf.getState();
+    EXPECT_NEAR(state(0), 100.0, 5.0); // Allow some error due to simple approximation
+}
+
+TEST_F(SensorFusionTest, GravityCompensation) {
+    // Initialize at origin
+    MeasurementGNSS gnss;
+    gnss.timestamp = 0.0;
+    gnss.pos_enu = Eigen::Vector3d(35.6892, 51.3890, 1200.0);
+    gnss.covariance = Eigen::Matrix3d::Identity() * 0.1;
+    ekf.updateGNSS(gnss);
+
+    // IMU at rest (measures gravity upwards: +9.81 in body Z)
+    MeasurementIMU imu;
+    imu.timestamp = 1.0;
+    imu.lin_accel = Eigen::Vector3d(0.0, 0.0, 9.81);
+    imu.ang_vel = Eigen::Vector3d(0.0, 0.0, 0.0);
+
+    ekf.updateIMU(imu);
+
+    Eigen::VectorXd state = ekf.getState();
+    // Compensated acceleration should be close to 0
+    EXPECT_NEAR(state(12), 0.0, 0.1);
+    EXPECT_NEAR(state(13), 0.0, 0.1);
+    EXPECT_NEAR(state(14), 0.0, 0.1);
+
+    // Predict for 1 second
+    ekf.predict(2.0);
+    state = ekf.getState();
+    // Position should still be (0, 0, 0)
+    EXPECT_NEAR(state(0), 0.0, 0.1);
 }
 
 TEST_F(SensorFusionTest, IMUUpdateVelocity) {
