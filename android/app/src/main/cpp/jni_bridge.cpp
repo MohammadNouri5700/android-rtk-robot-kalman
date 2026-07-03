@@ -1,0 +1,77 @@
+#include <jni.h>
+#include <memory>
+#include "sensor_fusion.hpp"
+
+using namespace rtklib_localization;
+
+extern "C" {
+
+JNIEXPORT jlong JNICALL
+Java_com_example_rtklib_1localization_LocalizationEngine_nativeCreateEngine(JNIEnv* env, jobject thiz) {
+    auto engine = new SensorFusionEKF();
+    return reinterpret_cast<jlong>(engine);
+}
+
+JNIEXPORT void JNICALL
+Java_com_example_rtklib_1localization_LocalizationEngine_nativeDestroyEngine(JNIEnv* env, jobject thiz, jlong engine_ptr) {
+    if (engine_ptr != 0) {
+        delete reinterpret_cast<SensorFusionEKF*>(engine_ptr);
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_com_example_rtklib_1localization_LocalizationEngine_nativePushIMU(JNIEnv* env, jobject thiz, jlong engine_ptr,
+                                                                       jdouble timestamp, jdouble ax, jdouble ay, jdouble az,
+                                                                       jdouble wx, jdouble wy, jdouble wz) {
+    auto* engine = reinterpret_cast<SensorFusionEKF*>(engine_ptr);
+    if (engine) {
+        MeasurementIMU imu{
+                timestamp,
+                Eigen::Vector3d(ax, ay, az),
+                Eigen::Vector3d(wx, wy, wz)
+        };
+        engine->updateIMU(imu);
+    }
+}
+
+JNIEXPORT jdoubleArray JNICALL
+Java_com_example_rtklib_1localization_LocalizationEngine_nativeGetState(JNIEnv* env, jobject thiz, jlong engine_ptr) {
+    auto engine = reinterpret_cast<SensorFusionEKF*>(engine_ptr);
+    if (!engine) return nullptr;
+
+    Eigen::VectorXd state = engine->getState();
+
+    jdoubleArray result = env->NewDoubleArray(15);
+    if (result == nullptr) return nullptr;
+
+    env->SetDoubleArrayRegion(result, 0, 15, state.data());
+    return result;
+}
+
+
+// 5. Receive GNSS data and pass it to the Kalman Filter
+JNIEXPORT void JNICALL
+Java_com_example_rtklib_1localization_LocalizationEngine_nativePushGNSS(JNIEnv* env, jobject thiz, jlong engine_ptr,
+                                                                        jdouble timestamp, jdouble lat, jdouble lon, jdouble alt,
+                                                                        jdouble cov_x, jdouble cov_y, jdouble cov_z) {
+    auto* engine = reinterpret_cast<SensorFusionEKF*>(engine_ptr);
+    if (engine) {
+        // In a full implementation, you would pass raw bytes to RTKEngine here first.
+        // For now, we take the coordinate and feed the Kalman Filter directly.
+        MeasurementGNSS gnss{
+                timestamp,
+                Eigen::Vector3d(lat, lon, alt), // ENU coordinates
+                Eigen::Matrix3d::Identity()     // Simplified covariance
+        };
+
+        // Inject the covariance diagonals based on GNSS accuracy
+        gnss.covariance(0, 0) = cov_x;
+        gnss.covariance(1, 1) = cov_y;
+        gnss.covariance(2, 2) = cov_z;
+
+        engine->updateGNSS(gnss);
+    }
+}
+
+
+} // extern "C"
