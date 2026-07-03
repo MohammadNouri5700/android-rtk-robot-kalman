@@ -1,13 +1,13 @@
 pluginManagement {
     repositories {
-        // Aliyun Mirrors (First)
-        maven { url = uri("https://maven.aliyun.com/repository/google") }
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
-
         google()
         mavenCentral()
         gradlePluginPortal()
+
+        // Aliyun Mirrors (Backup)
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
 
         // Other custom endpoints
         maven { url = uri("https://maven.neshan.org/artifactory/public-maven") }
@@ -21,12 +21,12 @@ plugins {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        // Aliyun Mirrors (First)
-        maven { url = uri("https://maven.aliyun.com/repository/google") }
-        maven { url = uri("https://maven.aliyun.com/repository/public") }
-
         google()
         mavenCentral()
+
+        // Aliyun Mirrors (Backup)
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
 
         maven { url = uri("https://maven.neshan.org/artifactory/public-maven") }
         maven { url = uri("https://dl.cloudsmith.io/public/carto/mobile-sdk/maven/") }
