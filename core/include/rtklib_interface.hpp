@@ -11,4 +11,5 @@ public:
     bool initialize();
 };
 
+
 } // namespace rtklib_localization

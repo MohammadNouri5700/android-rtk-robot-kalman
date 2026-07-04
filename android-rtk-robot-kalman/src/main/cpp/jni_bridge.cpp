@@ -1,6 +1,10 @@
 #include <jni.h>
 #include <memory>
+#include <android/log.h>
 #include "sensor_fusion.hpp"
+
+#define TAG "RTK_Native"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__)
 
 using namespace rtklib_localization;
 
@@ -60,12 +64,16 @@ Java_com_mohammadnouri5700_rtkrobotkalman_RtkRobotEngine_nativeGetState(JNIEnv* 
 JNIEXPORT void JNICALL
 Java_com_mohammadnouri5700_rtkrobotkalman_RtkRobotEngine_nativePushGNSS(JNIEnv* env, jobject thiz, jlong engine_ptr,
                                                                         jdouble timestamp, jdouble lat, jdouble lon, jdouble alt,
+                                                                        jdouble vx, jdouble vy, jdouble vz, jboolean has_velocity,
                                                                         jdouble cov_x, jdouble cov_y, jdouble cov_z) {
     auto* engine = reinterpret_cast<SensorFusionEKF*>(engine_ptr);
     if (engine) {
+        LOGD("PushGNSS: lat=%.6f, lon=%.6f, vel=%s", lat, lon, has_velocity ? "YES" : "NO");
         MeasurementGNSS gnss{
                 timestamp,
                 Eigen::Vector3d(lat, lon, alt),
+                Eigen::Vector3d(vx, vy, vz),
+                static_cast<bool>(has_velocity),
                 Eigen::Matrix3d::Identity()
         };
 

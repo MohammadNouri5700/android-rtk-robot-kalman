@@ -33,10 +33,10 @@ class RtkRobotEngine : AutoCloseable {
     }
 
     @Synchronized
-    fun pushIMU(linearAccel: FloatArray, angularVelocity: FloatArray) {
+    fun pushIMU(timestampNanos: Long, linearAccel: FloatArray, angularVelocity: FloatArray) {
         if (!isInitialized.get() || nativeEnginePtr == 0L) return
 
-        val timestamp = SystemClock.elapsedRealtimeNanos() / 1000000000.0
+        val timestamp = timestampNanos / 1_000_000_000.0
 
         // 1. Pass the data down into the C++ Engine
         nativePushIMU(
@@ -59,15 +59,26 @@ class RtkRobotEngine : AutoCloseable {
     }
 
     @Synchronized
-    fun pushGNSS(latitude: Double, longitude: Double, altitude: Double, accuracy: Double) {
+    fun pushGNSS(
+        timestampNanos: Long,
+        latitude: Double,
+        longitude: Double,
+        altitude: Double,
+        vEast: Double,
+        vNorth: Double,
+        vUp: Double,
+        hasVelocity: Boolean,
+        accuracy: Double
+    ) {
         if (!isInitialized.get() || nativeEnginePtr == 0L) return
 
-        val timestamp = SystemClock.elapsedRealtimeNanos() / 1000000000.0
+        val timestamp = timestampNanos / 1_000_000_000.0
 
         // Push to C++ (squaring the accuracy to approximate variance/covariance)
         nativePushGNSS(
             nativeEnginePtr, timestamp,
             latitude, longitude, altitude,
+            vEast, vNorth, vUp, hasVelocity,
             accuracy * accuracy, accuracy * accuracy, accuracy * accuracy
         )
 
@@ -97,7 +108,7 @@ class RtkRobotEngine : AutoCloseable {
     private external fun nativeCreateEngine(): Long
     private external fun nativeDestroyEngine(ptr: Long)
     private external fun nativePushIMU(ptr: Long, ts: Double, ax: Double, ay: Double, az: Double, wx: Double, wy: Double, wz: Double)
-    private external fun nativePushGNSS(ptr: Long, ts: Double, lat: Double, lon: Double, alt: Double, cx: Double, cy: Double, cz: Double)
+    private external fun nativePushGNSS(ptr: Long, ts: Double, lat: Double, lon: Double, alt: Double, vx: Double, vy: Double, vz: Double, hv: Boolean, cx: Double, cy: Double, cz: Double)
     private external fun nativeGetState(ptr: Long): DoubleArray?
 }
 
