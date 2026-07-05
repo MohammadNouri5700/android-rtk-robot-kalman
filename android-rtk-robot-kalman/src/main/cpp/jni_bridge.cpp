@@ -38,10 +38,10 @@ Java_com_mohammadnouri5700_rtkrobotkalman_RtkRobotEngine_nativePushIMU(JNIEnv* e
     }
 }
 
-JNIEXPORT jdoubleArray JNICALL
-Java_com_mohammadnouri5700_rtkrobotkalman_RtkRobotEngine_nativeGetState(JNIEnv* env, jobject thiz, jlong engine_ptr) {
+JNIEXPORT void JNICALL
+Java_com_mohammadnouri5700_rtkrobotkalman_RtkRobotEngine_nativeGetState(JNIEnv* env, jobject thiz, jlong engine_ptr, jdoubleArray out_array) {
     auto engine = reinterpret_cast<SensorFusionEKF*>(engine_ptr);
-    if (!engine) return nullptr;
+    if (!engine || !out_array) return;
 
     Eigen::VectorXd state = engine->getState();
 
@@ -53,11 +53,7 @@ Java_com_mohammadnouri5700_rtkrobotkalman_RtkRobotEngine_nativeGetState(JNIEnv* 
     state(1) = pos_wgs84.y(); // Longitude
     state(2) = pos_wgs84.z(); // Altitude
 
-    jdoubleArray result = env->NewDoubleArray(15);
-    if (result == nullptr) return nullptr;
-
-    env->SetDoubleArrayRegion(result, 0, 15, state.data());
-    return result;
+    env->SetDoubleArrayRegion(out_array, 0, 15, state.data());
 }
 
 
@@ -65,23 +61,51 @@ JNIEXPORT void JNICALL
 Java_com_mohammadnouri5700_rtkrobotkalman_RtkRobotEngine_nativePushGNSS(JNIEnv* env, jobject thiz, jlong engine_ptr,
                                                                         jdouble timestamp, jdouble lat, jdouble lon, jdouble alt,
                                                                         jdouble vx, jdouble vy, jdouble vz, jboolean has_velocity,
-                                                                        jdouble cov_x, jdouble cov_y, jdouble cov_z) {
+                                                                        jdoubleArray jcov) {
     auto* engine = reinterpret_cast<SensorFusionEKF*>(engine_ptr);
-    if (engine) {
-        LOGD("PushGNSS: lat=%.6f, lon=%.6f, vel=%s", lat, lon, has_velocity ? "YES" : "NO");
+    if (engine && jcov) {
+        jdouble* cov_ptr = env->GetDoubleArrayElements(jcov, nullptr);
+        Eigen::Matrix3d covariance = Eigen::Map<Eigen::Matrix<double, 3, 3, Eigen::RowMajor>>(cov_ptr);
+        env->ReleaseDoubleArrayElements(jcov, cov_ptr, JNI_ABORT);
+
         MeasurementGNSS gnss{
                 timestamp,
                 Eigen::Vector3d(lat, lon, alt),
                 Eigen::Vector3d(vx, vy, vz),
                 static_cast<bool>(has_velocity),
-                Eigen::Matrix3d::Identity()
+                covariance
         };
-
-        gnss.covariance(0, 0) = cov_x;
-        gnss.covariance(1, 1) = cov_y;
-        gnss.covariance(2, 2) = cov_z;
-
         engine->updateGNSS(gnss);
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_com_mohammadnouri5700_rtkrobotkalman_RtkRobotEngine_nativePushOrientation(JNIEnv* env, jobject thiz, jlong engine_ptr,
+                                                                               jdouble timestamp, jdouble roll, jdouble pitch, jdouble yaw) {
+    auto* engine = reinterpret_cast<SensorFusionEKF*>(engine_ptr);
+    if (engine) {
+        MeasurementOrientation orient{timestamp, roll, pitch, yaw};
+        engine->updateOrientation(orient);
+    }
+}
+
+JNIEXPORT void JNICALL
+Java_com_mohammadnouri5700_rtkrobotkalman_RtkRobotEngine_nativePushRawObservations(JNIEnv* env, jobject thiz, jlong engine_ptr,
+                                                                                   jdouble timestamp, jobjectArray jobs_array) {
+    auto* engine = reinterpret_cast<SensorFusionEKF*>(engine_ptr);
+    if (engine && jobs_array) {
+        int n = env->GetArrayLength(jobs_array);
+        std::vector<std::vector<double>> raw_data;
+        for (int i = 0; i < n; ++i) {
+            auto jdouble_array = (jdoubleArray)env->GetObjectArrayElement(jobs_array, i);
+            int m = env->GetArrayLength(jdouble_array);
+            jdouble* elements = env->GetDoubleArrayElements(jdouble_array, nullptr);
+            std::vector<double> row(elements, elements + m);
+            raw_data.push_back(row);
+            env->ReleaseDoubleArrayElements(jdouble_array, elements, JNI_ABORT);
+            env->DeleteLocalRef(jdouble_array);
+        }
+        engine->updateRawObservations(timestamp, raw_data);
     }
 }
 

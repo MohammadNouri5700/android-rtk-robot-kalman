@@ -46,6 +46,23 @@ add_definitions(-DENAGLO -DENAGAL -DENAQZS -DNFREQ=3)
 add_library(rtklib_core STATIC
         ../../../../core/src/rtklib_interface.cpp
         ../../../../third_party/RTKLIB/src/rtkcmn.c
+        ../../../../third_party/RTKLIB/src/rtkpos.c
+        ../../../../third_party/RTKLIB/src/pntpos.c
+        ../../../../third_party/RTKLIB/src/ephemeris.c
+        ../../../../third_party/RTKLIB/src/lambda.c
+        ../../../../third_party/RTKLIB/src/rtcm.c
+        ../../../../third_party/RTKLIB/src/rtcm2.c
+        ../../../../third_party/RTKLIB/src/rtcm3.c
+        ../../../../third_party/RTKLIB/src/rtcm3e.c
+        ../../../../third_party/RTKLIB/src/options.c
+        ../../../../third_party/RTKLIB/src/sbas.c
+        ../../../../third_party/RTKLIB/src/ppp.c
+        ../../../../third_party/RTKLIB/src/ppp_ar.c
+        ../../../../third_party/RTKLIB/src/ionex.c
+        ../../../../third_party/RTKLIB/src/qzslex.c
+        ../../../../third_party/RTKLIB/src/datum.c
+        ../../../../third_party/RTKLIB/src/geoid.c
+        ../../../../third_party/RTKLIB/src/preceph.c
 )
 target_include_directories(rtklib_core PUBLIC
         ../../../../core/include
@@ -55,6 +72,7 @@ target_include_directories(rtklib_core PUBLIC
 # 2. Shared Library for Android Native Bridge
 add_library(rtk_robot_kalman_engine SHARED
         ../../../../core/src/sensor_fusion.cpp
+        ../../../../core/src/robot_localization_ekf.cpp
         jni_bridge.cpp
 )
 
@@ -74,6 +92,7 @@ target_link_libraries(rtk_robot_kalman_engine
 # 5. Unit Tests (C++)
 add_executable(sensor_fusion_test
         ../../../../core/src/sensor_fusion.cpp
+        ../../../../core/src/robot_localization_ekf.cpp
         ../../../../core/test/sensor_fusion_test.cpp
 )
 target_include_directories(sensor_fusion_test PUBLIC
