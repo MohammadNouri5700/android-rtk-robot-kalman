@@ -36,4 +36,5 @@ private:
     nav_t nav_;
 };
 
+
 } // namespace rtklib_localization

@@ -76,7 +76,7 @@ dependencyResolutionManagement {
 ### 2. Add Dependency to `build.gradle.kts`
 ```kotlin
 dependencies {
-    implementation("com.github.MohammadNouri5700:android-rtk-robot-kalman:1.0.3")
+    implementation("com.github.MohammadNouri5700:android-rtk-robot-kalman:1.0.4")
 }
 ```
 
