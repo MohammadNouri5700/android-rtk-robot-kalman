@@ -1,10 +1,11 @@
 plugins {
     alias(libs.plugins.android.library)
+    id("org.jetbrains.kotlin.android")
     `maven-publish`
 }
 
 group = "com.github.MohammadNouri5700"
-version = "1.0.7"
+version = "1.0.8"
 
 kotlin {
     jvmToolchain(17)
