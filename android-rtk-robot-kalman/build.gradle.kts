@@ -4,7 +4,11 @@ plugins {
 }
 
 group = "com.github.MohammadNouri5700"
-version = "1.0.6"
+version = "1.0.7"
+
+kotlin {
+    jvmToolchain(17)
+}
 
 android {
     namespace = "com.mohammadnouri5700.rtkrobotkalman"
@@ -25,9 +29,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlin {
-        jvmToolchain(17)
     }
     externalNativeBuild {
         cmake {
