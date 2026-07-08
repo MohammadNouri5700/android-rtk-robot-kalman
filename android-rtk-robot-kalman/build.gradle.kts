@@ -1,11 +1,10 @@
 plugins {
     alias(libs.plugins.android.library)
-    id("org.jetbrains.kotlin.android")
     `maven-publish`
 }
 
 group = "com.github.MohammadNouri5700"
-version = "1.0.8"
+version = "1.0.9"
 
 kotlin {
     jvmToolchain(17)
@@ -13,7 +12,7 @@ kotlin {
 
 android {
     namespace = "com.mohammadnouri5700.rtkrobotkalman"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26
