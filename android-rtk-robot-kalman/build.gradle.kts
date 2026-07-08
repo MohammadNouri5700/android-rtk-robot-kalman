@@ -4,11 +4,11 @@ plugins {
 }
 
 group = "com.github.MohammadNouri5700"
-version = "1.0.5"
+version = "1.0.6"
 
 android {
     namespace = "com.mohammadnouri5700.rtkrobotkalman"
-    compileSdk = 37
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
